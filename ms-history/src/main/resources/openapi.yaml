@@ -1,0 +1,79 @@
+openapi: 3.0.1
+info:
+  title: History
+  version: v0.0.1
+servers:
+  - url: http://localhost:8082/api
+    description: Microsserviço History
+paths:
+  /history:
+    get:
+      tags:
+        - Order
+      summary: Listar
+      operationId: findAll
+      parameters:
+        - name: date
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: pageable
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/Pageable'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageableDTO'
+components:
+  schemas:
+    Pageable:
+      type: object
+      properties:
+        page:
+          minimum: 0
+          type: integer
+          format: int32
+        size:
+          minimum: 1
+          type: integer
+          format: int32
+        sort:
+          type: array
+          items:
+            type: string
+    History:
+      type: object
+      properties:
+        id:
+          type: string
+        eventDateTime:
+          type: string
+          format: date
+        orderId:
+          type: integer
+          format: int64
+        totalValue:
+          type: number
+    PageableDTO:
+      type: object
+      properties:
+        numberOfElements:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        historyList:
+          type: array
+          items:
+            $ref: '#/components/schemas/History'

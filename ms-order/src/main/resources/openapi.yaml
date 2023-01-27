@@ -1,0 +1,286 @@
+openapi: 3.0.1
+info:
+  title: Order
+  version: v0.0.1
+servers:
+  - url: http://localhost:8081/api
+    description: Microsserviço Order
+paths:
+  /orders/{id}:
+    get:
+      tags:
+        - Order
+      summary: Buscar pedido por ID
+      operationId: findById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDTO'
+    put:
+      tags:
+        - Order
+      summary: Atualizar pedido por ID
+      operationId: update
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDTO'
+    delete:
+      tags:
+        - Order
+      summary: Excluir pedido
+      operationId: delete
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDTO'
+  /orders:
+    get:
+      tags:
+        - Order
+      summary: Listar pedidos
+      operationId: findAll
+      parameters:
+        - name: cpf
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: totalValue
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: pageable
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/Pageable'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageableDTO'
+    post:
+      tags:
+        - Order
+      summary: Cadastrar pedido
+      operationId: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDTO'
+  /item/{id}:
+    patch:
+      tags:
+        - Item
+      summary: Atualizar item
+      operationId: patch
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ItemDTO'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemDTO'
+components:
+  schemas:
+    AddressRequest:
+      type: object
+      properties:
+        cep:
+          type: string
+        numero:
+          type: string
+        logradouro:
+          type: string
+        bairro:
+          type: string
+    Item:
+      required:
+        - creationDate
+        - description
+        - expirationDate
+        - name
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          pattern: ^([a-zA-ZãÃéÉíÍóÓêÊôÔáÁ\s])+$
+          type: string
+        creationDate:
+          type: string
+          format: date
+        expirationDate:
+          type: string
+          format: date
+        value:
+          type: number
+        description:
+          type: string
+    OrderRequest:
+      type: object
+      properties:
+        cpf:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Item'
+        address:
+          $ref: '#/components/schemas/AddressRequest'
+    Address:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        cep:
+          type: string
+        uf:
+          type: string
+        logradouro:
+          type: string
+        numero:
+          type: string
+        bairro:
+          type: string
+        localidade:
+          type: string
+    OrderDTO:
+      type: object
+      properties:
+        cpf:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Item'
+        totalValue:
+          type: number
+        address:
+          $ref: '#/components/schemas/Address'
+    ItemDTO:
+      type: object
+      properties:
+        name:
+          type: string
+        creationDate:
+          type: string
+          format: date
+        expirationDate:
+          type: string
+          format: date
+        value:
+          type: number
+        description:
+          type: string
+    Pageable:
+      type: object
+      properties:
+        page:
+          minimum: 0
+          type: integer
+          format: int32
+        size:
+          minimum: 1
+          type: integer
+          format: int32
+        sort:
+          type: array
+          items:
+            type: string
+    Order:
+      type: object
+      properties:
+        orderId:
+          type: integer
+          format: int64
+        cpf:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Item'
+        totalValue:
+          type: number
+        address:
+          $ref: '#/components/schemas/Address'
+    PageableDTO:
+      type: object
+      properties:
+        numberOfElements:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        orderList:
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
